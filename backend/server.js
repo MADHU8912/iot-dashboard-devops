@@ -7,19 +7,16 @@ app.use(cors());
 const PORT = process.env.PORT || 5000;
 
 app.get("/", (req, res) => {
-  res.json({
-    message: "IoT backend running",
-    status: "success"
-  });
+  res.json({ message: "IoT backend running" });
 });
 
 app.get("/api/sensors", (req, res) => {
   res.json({
-    device: "ESP32 Demo Device",
-    temperature: 27,
-    humidity: 61,
+    device: "ESP32 Sensor",
+    temperature: 28,
+    humidity: 60,
     pressure: 1008,
-    light: "ON",
+    status: "ACTIVE",
     updatedAt: new Date().toISOString()
   });
 });
