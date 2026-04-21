@@ -1,6 +1,6 @@
-const API_URL = "https://iot-dashboard.onrender.com/api/sensors";
+const API_URL = "http://localhost:5000/api/sensors";
 
-async function loadSensors() {
+async function loadData() {
   try {
     const res = await fetch(API_URL);
     const data = await res.json();
@@ -9,11 +9,11 @@ async function loadSensors() {
     document.getElementById("temperature").textContent = data.temperature + " °C";
     document.getElementById("humidity").textContent = data.humidity + " %";
     document.getElementById("pressure").textContent = data.pressure + " hPa";
-    document.getElementById("light").textContent = data.light;
+    document.getElementById("status").textContent = data.status;
     document.getElementById("updatedAt").textContent = data.updatedAt;
-  } catch (error) {
-    console.error("Error loading sensor data:", error);
+  } catch (err) {
+    console.error(err);
   }
 }
 
-loadSensors();
+loadData();
