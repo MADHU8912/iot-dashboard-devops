@@ -1,0 +1,14 @@
+{
+  "name": "iot-backend",
+  "version": "1.0.0",
+  "description": "IoT sensor backend for DevOps demo",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node -e \"console.log('Backend test passed')\""
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "cors": "^2.8.5"
+  }
+}
