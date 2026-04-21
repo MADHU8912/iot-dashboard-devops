@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:5000/api/sensors";
+const API_URL = "https://iot-dashboard.onrender.com/api/sensors";
 
 async function loadSensors() {
   try {
