@@ -1,0 +1,91 @@
+pipeline {
+    agent any
+
+    environment {
+        IMAGE_NAME = 'nikhilabba12/iot-dashboard'
+        IMAGE_TAG = 'latest'
+        CONTAINER_NAME = 'iot-dashboard-container'
+        RENDER_DEPLOY_HOOK = 'PASTE_RENDER_DEPLOY_HOOK_HERE'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Check Files') {
+            steps {
+                bat 'dir'
+                bat 'dir backend'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                dir('backend') {
+                    bat 'docker build -t %IMAGE_NAME%:%IMAGE_TAG% .'
+                }
+            }
+        }
+
+        stage('Docker Login') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    bat 'echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin'
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                bat 'docker push %IMAGE_NAME%:%IMAGE_TAG%'
+            }
+        }
+
+        stage('Pull Docker Image') {
+            steps {
+                bat 'docker pull %IMAGE_NAME%:%IMAGE_TAG%'
+            }
+        }
+
+        stage('Trigger Render Deploy') {
+            steps {
+                bat 'curl -X POST %RENDER_DEPLOY_HOOK%'
+            }
+        }
+
+        stage('Remove Old Container') {
+            steps {
+                bat 'docker rm -f %CONTAINER_NAME% || exit /b 0'
+            }
+        }
+
+        stage('Run Docker Container') {
+            steps {
+                bat 'docker run -d -p 5000:5000 --name %CONTAINER_NAME% %IMAGE_NAME%:%IMAGE_TAG%'
+            }
+        }
+
+        stage('Build Report') {
+            steps {
+                bat 'echo Build successful > build-report.txt'
+                bat 'echo Image: %IMAGE_NAME%:%IMAGE_TAG% >> build-report.txt'
+                bat 'echo Container: %CONTAINER_NAME% >> build-report.txt'
+            }
+        }
+    }
+
+    post {
+        always {
+            archiveArtifacts artifacts: 'build-report.txt', fingerprint: true
+        }
+        success {
+            echo 'CI/CD completed successfully'
+        }
+        failure {
+            echo 'CI/CD failed'
+        }
+    }
+}
